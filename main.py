@@ -29,7 +29,7 @@ while True:
         t1 = [response[0]['towards'], (convertToMinutes(response[0]['timeToStation']))]
         t2 = [response[1]['towards'], (convertToMinutes(response[1]['timeToStation']))]
         t3 = [response[2]['towards'], (convertToMinutes(response[2]['timeToStation']))]
-        t4 = [response[2]['towards'], (convertToMinutes(response[3]['timeToStation']))]
+        t4 = [response[3]['towards'], (convertToMinutes(response[3]['timeToStation']))]
         os.system("cls")
         print("The next train towards {} will arrive in {} minutes.".format(t1[0], t1[1]))
         print("The next train towards {} will arrive in {} minutes.".format(t2[0], t2[1]))
