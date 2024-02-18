@@ -13,16 +13,17 @@ hdr = {'Cache-Control':'no-cache'}
 def convertToMinutes(seconds):
     minutes = round(seconds/60,0)
     return minutes
-try:
-    r = requests.get(url, headers=hdr)
-    response = r.json()
-    t1 = (response[0]['timeToStation'])
-    t2 = (response[1]['timeToStation'])
-    t3 = (response[2]['timeToStation'])
-    os.system("cls")
-    print("The next train will arrive in " + str(convertToMinutes(t1)) + " minutes.")
-    print("The next train will arrive in " + str(convertToMinutes(t2)) + " minutes.")
-    print("The next train will arrive in " + str(convertToMinutes(t3)) + " minutes.")
-    time.sleep(60)
-except Exception as e:
-    print(e)
+while true:
+    try:
+        r = requests.get(url, headers=hdr)
+        response = r.json()
+        t1 = (response[0]['timeToStation'])
+        t2 = (response[1]['timeToStation'])
+        t3 = (response[2]['timeToStation'])
+        os.system("cls")
+        print("The next train will arrive in " + str(convertToMinutes(t1)) + " minutes.")
+        print("The next train will arrive in " + str(convertToMinutes(t2)) + " minutes.")
+        print("The next train will arrive in " + str(convertToMinutes(t3)) + " minutes.")
+        time.sleep(60)
+    except Exception as e:
+        print(e)
