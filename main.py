@@ -13,7 +13,8 @@ hdr = {'Cache-Control':'no-cache'}
 def convertToMinutes(seconds):
     minutes = round(seconds/60,0)
     return minutes
-while true:
+
+while True:
     try:
         r = requests.get(url, headers=hdr)
         response = r.json()
