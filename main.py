@@ -21,7 +21,7 @@ def countdown(i):
         time.sleep(1)
         i -= 1
         print ("\033[A \033[A")
-
+        
 while True:
     try:
         r = requests.get(url, headers=hdr)
