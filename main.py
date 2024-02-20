@@ -11,30 +11,35 @@ station = config.stationID
 url = ("https://api.tfl.gov.uk/StopPoint/{}/Arrivals".format(station))
 hdr = {'Cache-Control':'no-cache'}
 
-def convertToMinutes(seconds):
-    minutes = round(seconds/60,0)
-    return minutes
+# Send request and get response
+try:
+  r = requests.get(url, headers=hdr)
+  data = r.json()
+except requests.exceptions.RequestException as e:
+  print(f"Error: {e}")
+  exit()
 
-def countdown(i):
-    while i > 0:
-        print("Refreshing in {} seconds".format(i))
-        time.sleep(1)
-        i -= 1
-        print ("\033[A \033[A")
-        
-while True:
-    try:
-        r = requests.get(url, headers=hdr)
-        response = r.json()
-        t1 = [response[0]['towards'], (convertToMinutes(response[0]['timeToStation']))]
-        t2 = [response[1]['towards'], (convertToMinutes(response[1]['timeToStation']))]
-        t3 = [response[2]['towards'], (convertToMinutes(response[2]['timeToStation']))]
-        t4 = [response[3]['towards'], (convertToMinutes(response[3]['timeToStation']))]
-        os.system("cls")
-        print("The next train towards {} will arrive in {} minutes.".format(t1[0], t1[1]))
-        print("The next train towards {} will arrive in {} minutes.".format(t2[0], t2[1]))
-        print("The next train towards {} will arrive in {} minutes.".format(t3[0], t3[1]))
-        print("The next train towards {} will arrive in {} minutes.".format(t4[0], t4[1]))
-        countdown(60)
-    except Exception as e:
-        print(e)
+print(data)
+
+# Extract and display relevant information
+print("Northfields Underground Station Information:")
+
+# Display line names
+print("Lines:")
+for line in data["lines"]:
+  print(f"- {line['name']}")
+
+# Display platform name and destination for next arrival on each line
+for line in data["lines"]:
+  if line["arrivals"]:
+    next_arrival = line["arrivals"][0]
+    print(f"\t- Line {line['name']}: platform {next_arrival['platformName']} towards {next_arrival['destinationName']}")
+  else:
+    print(f"\t- Line {line['name']}: No upcoming arrivals")
+
+# Additional information you can display (optional):
+# - Station status (e.g., operational, closed)
+# - Real-time departure times
+# - Accessibility information
+
+print("For more information, please visit https://www.tfl.gov.uk/underground/arrivals/")
