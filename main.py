@@ -9,7 +9,7 @@ app_id = config.app_id
 station = config.stationID
 
 url = ("https://api.tfl.gov.uk/StopPoint/{}/Arrivals".format(station))
-hdr = {'Cache-Control':'no-cache'}
+hdr = {'Cache-Control':'no-cache', 'app_id':app_id, 'app_key':app_key}
 
 # Send request and get response
 try:
