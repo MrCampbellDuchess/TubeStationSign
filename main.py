@@ -9,7 +9,7 @@ app_id = config.app_id
 station = config.stationID
 
 url = ("https://api.tfl.gov.uk/StopPoint/{}/Arrivals".format(station))
-hdr = {'Cache-Control':'no-cache'}
+hdr = {'Cache-Control':'no-cache', 'app_key':app_key, 'app_id':app_id}
 
 def convertToMinutes(seconds):
     minutes = round(seconds/60,0)
