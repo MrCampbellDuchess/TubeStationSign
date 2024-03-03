@@ -90,12 +90,12 @@ while True:
     # Make API request
     response = requests.get(url, headers=headers)
 
-    # Check for successful response
+    # Check for successful response and parse
     if response.status_code == 200:
         data = json.loads(response.text)
-        data = remove_duplicates(data)
-        data = strip_destination_name(data)
         data = sort_by_time(data)
+        data = strip_destination_name(data)
+        data = remove_duplicates(data)
         display_arrivals_board(data)
     else:
         print(f"Error: {response.status_code}")
