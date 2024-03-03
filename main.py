@@ -95,6 +95,7 @@ while True:
         data = json.loads(response.text)
         data = remove_duplicates(data)
         data = strip_destination_name(data)
+        data = sort_by_time(data)
         display_arrivals_board(data)
     else:
         print(f"Error: {response.status_code}")
