@@ -6,20 +6,21 @@ import config
 # Define API endpoint and station code
 station = config.stationID
 StationName = config.StationName
-url = ("https://api.tfl.gov.uk/StopPoint/{}/Arrivals".format(station))
+url = "https://api.tfl.gov.uk/StopPoint/{}/Arrivals".format(station)
 # Replace with your App ID
 app_id = config.app_id
 # Replace with your App Key
 app_key = config.app_key
 
 # Set headers with your App ID and App Key
-headers = {
-    "Authorization": f"Bearer {app_id}:{app_key}"
-}
-#function to remove duplicates
+headers = {"Authorization": f"Bearer {app_id}:{app_key}"}
+
+
+# function to remove duplicates
 def remove_duplicates(data):
     """
-    Removes duplicate entries from the JSON data based on `lineName` and `timeToStation`.
+    Removes duplicate entries from the JSON data based on `lineName` 
+    and `timeToStation`.
     This ensures that duplicate services are not shown seperately
 
     Args:
@@ -37,6 +38,7 @@ def remove_duplicates(data):
             unique_data.append(item)
     return unique_data
 
+
 # Function to display arrivals board
 def display_arrivals_board(data):
     print("{} Arrivals Board:".format(StationName))
@@ -51,10 +53,12 @@ def display_arrivals_board(data):
         # Convert time to minutes (optional)
         minutes = int(time_to_station / 60)
 
-        print("{:<20} {:<15} {:<10}".format(line_name, destination_name, minutes))
+        print("{:<20} {:<15} {:<10}".format(\
+            line_name, destination_name, minutes))
     print("-" * 100)
 
-#function to strip the words "Underground Station" from the destination
+
+# function to strip the words "Underground Station" from the destination
 def strip_destination_name(data):
     """
     Strips the string "Underground Station" from the `destinationName` field.
@@ -69,10 +73,11 @@ def strip_destination_name(data):
     for item in data:
         destination_name = item["destinationName"]
         if destination_name.endswith(" Underground Station"):
-            item["destinationName"] = destination_name[:-19]  # Remove 19 characters
+            item["destinationName"] = destination_name[:-19]
     return data
 
-#function to sort the data by timeToStation
+
+# function to sort the data by timeToStation
 def sort_by_time(data):
     """
     Sorts the data by `timeToStation` in ascending order.
@@ -85,7 +90,8 @@ def sort_by_time(data):
     """
     return sorted(data, key=lambda x: x["timeToStation"])
 
-#main loop begins
+
+# main loop begins
 while True:
     # Make API request
     response = requests.get(url, headers=headers)
