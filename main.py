@@ -1,10 +1,11 @@
 import requests
 import json
 import time
-import config.py
+import config
 
 # Define API endpoint and station code
-url = "https://api.tfl.gov.uk/v1/arrivals?stopId=940GZZLUNFD"
+station = config.stationID
+url = ("https://api.tfl.gov.uk/StopPoint/{}/Arrivals".format(station))
 # Replace with your App ID
 app_id = config.app_id
 # Replace with your App Key
@@ -17,20 +18,20 @@ headers = {
 
 # Function to display arrivals board
 def display_arrivals_board(data):
-    print("Northfields Underground Station Arrivals Board:")
-    print("-" * 50)
+    print("Northfields Arrivals Board:")
+    print("-" * 100)
     print("{:<20} {:<15} {:<10}".format("Line", "Destination", "Time"))
-    print("-" * 50)
+    print("-" * 100)
     for arrival in data:
         line_name = arrival["lineName"]
         destination_name = arrival["destinationName"]
         time_to_station = arrival["timeToStation"]
 
         # Convert time to minutes (optional)
-        # minutes = int(time_to_station / 60)
+        minutes = int(time_to_station / 60)
 
-        print("{:<20} {:<15} {:<10}".format(line_name, destination_name, time_to_station))
-    print("-" * 50)
+        print("{:<20} {:<15} {:<10}".format(line_name, destination_name, minutes))
+    print("-" * 100)
 
 
 while True:
