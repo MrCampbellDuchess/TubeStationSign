@@ -1,45 +1,48 @@
-
 import requests
-import config
-import os
+import json
 import time
+import config.py
 
-app_key = config.app_key
+# Define API endpoint and station code
+url = "https://api.tfl.gov.uk/v1/arrivals?stopId=940GZZLUNFD"
+# Replace with your App ID
 app_id = config.app_id
-station = config.stationID
+# Replace with your App Key
+app_key = config.app_key
 
-url = ("https://api.tfl.gov.uk/StopPoint/{}/Arrivals".format(station))
-hdr = {'Cache-Control':'no-cache', 'app_id':app_id, 'app_key':app_key}
+# Set headers with your App ID and App Key
+headers = {
+    "Authorization": f"Bearer {app_id}:{app_key}"
+}
 
-# Send request and get response
-try:
-  r = requests.get(url, headers=hdr)
-  data = r.json()
-except requests.exceptions.RequestException as e:
-  print(f"Error: {e}")
-  exit()
-#troubleshooting data
-print(data)
+# Function to display arrivals board
+def display_arrivals_board(data):
+    print("Northfields Underground Station Arrivals Board:")
+    print("-" * 50)
+    print("{:<20} {:<15} {:<10}".format("Line", "Destination", "Time"))
+    print("-" * 50)
+    for arrival in data:
+        line_name = arrival["lineName"]
+        destination_name = arrival["destinationName"]
+        time_to_station = arrival["timeToStation"]
 
-# Extract and display relevant information
-print("Northfields Underground Station Information:")
+        # Convert time to minutes (optional)
+        # minutes = int(time_to_station / 60)
 
-# Display line names
-print("Lines:")
-for line in data["lines"]:
-  print(f"- {line['name']}")
+        print("{:<20} {:<15} {:<10}".format(line_name, destination_name, time_to_station))
+    print("-" * 50)
 
-# Display platform name and destination for next arrival on each line
-for line in data["lines"]:
-  if line["arrivals"]:
-    next_arrival = line["arrivals"][0]
-    print(f"\t- Line {line['name']}: platform {next_arrival['platformName']} towards {next_arrival['destinationName']}")
-  else:
-    print(f"\t- Line {line['name']}: No upcoming arrivals")
 
-# Additional information you can display (optional):
-# - Station status (e.g., operational, closed)
-# - Real-time departure times
-# - Accessibility information
+while True:
+    # Make API request
+    response = requests.get(url, headers=headers)
 
-print("For more information, please visit https://www.tfl.gov.uk/underground/arrivals/")
+    # Check for successful response
+    if response.status_code == 200:
+        data = json.loads(response.text)
+        display_arrivals_board(data)
+    else:
+        print(f"Error: {response.status_code}")
+
+    # Set refresh rate (in seconds)
+    time.sleep(60)
