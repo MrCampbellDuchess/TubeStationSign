@@ -2,6 +2,7 @@ import requests
 import json
 import time
 import config
+import os
 
 # Define API endpoint and station code
 station = config.stationID
@@ -90,12 +91,15 @@ def sort_by_time(data):
     """
     return sorted(data, key=lambda x: x["timeToStation"])
 
-
+#function to clear the screen
+def cls():
+    os.system('cls' if os.name=='nt' else 'clear')
 # main loop begins
 while True:
     # Make API request
     response = requests.get(url, headers=headers)
-
+    #clear the screen
+    cls()
     # Check for successful response and parse
     if response.status_code == 200:
         data = json.loads(response.text)
@@ -108,3 +112,4 @@ while True:
 
     # Set refresh rate (in seconds)
     time.sleep(60)
+    
