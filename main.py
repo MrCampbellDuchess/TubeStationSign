@@ -1,40 +1,115 @@
-
 import requests
+import json
+import time
 import config
 import os
-import time
 
-app_key = config.app_key
-app_id = config.app_id
+# Define API endpoint and station code
 station = config.stationID
+StationName = config.StationName
+url = "https://api.tfl.gov.uk/StopPoint/{}/Arrivals".format(station)
+# Replace with your App ID
+app_id = config.app_id
+# Replace with your App Key
+app_key = config.app_key
 
-url = ("https://api.tfl.gov.uk/StopPoint/{}/Arrivals".format(station))
-hdr = {'Cache-Control':'no-cache', 'app_key':app_key, 'app_id':app_id}
+# Set headers with your App ID and App Key
+headers = {"Authorization": f"Bearer {app_id}:{app_key}"}
 
-def convertToMinutes(seconds):
-    minutes = round(seconds/60,0)
-    return minutes
 
-def countdown(i):
-    while i > 0:
-        print("Refreshing in {} seconds".format(i))
-        time.sleep(1)
-        i -= 1
-        print ("\033[A \033[A")
-        
+# function to remove duplicates
+def remove_duplicates(data):
+    """
+    Removes duplicate entries from the JSON data based on `lineName` 
+    and `timeToStation`.
+    This ensures that duplicate services are not shown seperately
+
+    Args:
+        data (list): List of dictionaries containing arrival information.
+
+    Returns:
+        list: List of dictionaries with duplicates removed.
+    """
+    seen = set()
+    unique_data = []
+    for item in data:
+        key = (item["lineName"], item["timeToStation"])
+        if key not in seen:
+            seen.add(key)
+            unique_data.append(item)
+    return unique_data
+
+
+# Function to display arrivals board
+def display_arrivals_board(data):
+    print("{} Arrivals Board:".format(StationName))
+    print("-" * 100)
+    print("{:<20} {:<15} {:>20}".format("Line", "Destination", "Time"))
+    print("-" * 100)
+    for arrival in data:
+        line_name = arrival["lineName"]
+        destination_name = arrival["destinationName"]
+        time_to_station = arrival["timeToStation"]
+
+        # Convert time to minutes (optional)
+        minutes = int(time_to_station / 60)
+
+        print("{:<20} {:<15} {:<10}".format(\
+            line_name, destination_name, minutes))
+    print("-" * 100)
+
+
+# function to strip the words "Underground Station" from the destination
+def strip_destination_name(data):
+    """
+    Strips the string "Underground Station" from the `destinationName` field.
+    This is redundant as all stops will have that text.
+
+    Args:
+        data (list): List of dictionaries containing arrival information.
+
+    Returns:
+        list: List of dictionaries with modified `destinationName` fields.
+    """
+    for item in data:
+        destination_name = item["destinationName"]
+        if destination_name.endswith(" Underground Station"):
+            item["destinationName"] = destination_name[:-19]
+    return data
+
+
+# function to sort the data by timeToStation
+def sort_by_time(data):
+    """
+    Sorts the data by `timeToStation` in ascending order.
+
+    Args:
+        data (list): List of dictionaries containing arrival information.
+
+    Returns:
+        list: List of dictionaries sorted by `timeToStation`.
+    """
+    return sorted(data, key=lambda x: x["timeToStation"])
+
+#function to clear the screen
+def cls():
+    os.system('cls' if os.name=='nt' else 'clear')
+# main loop begins
 while True:
-    try:
-        r = requests.get(url, headers=hdr)
-        response = r.json()
-        t1 = [response[0]['towards'], (convertToMinutes(response[0]['timeToStation']))]
-        t2 = [response[1]['towards'], (convertToMinutes(response[1]['timeToStation']))]
-        t3 = [response[2]['towards'], (convertToMinutes(response[2]['timeToStation']))]
-        t4 = [response[3]['towards'], (convertToMinutes(response[3]['timeToStation']))]
-        os.system("cls")
-        print("The next train towards {} will arrive in {} minutes.".format(t1[0], t1[1]))
-        print("The next train towards {} will arrive in {} minutes.".format(t2[0], t2[1]))
-        print("The next train towards {} will arrive in {} minutes.".format(t3[0], t3[1]))
-        print("The next train towards {} will arrive in {} minutes.".format(t4[0], t4[1]))
-        countdown(60)
-    except Exception as e:
-        print(e)
+    # Make API request
+    response = requests.get(url, headers=headers)
+    #clear the screen
+    cls()
+    # Check for successful response and parse
+    if response.status_code == 200:
+        data = json.loads(response.text)
+        data = sort_by_time(data)
+        data = strip_destination_name(data)
+        data = remove_duplicates(data)
+        display_arrivals_board(data)
+    else:
+        print(f"Error: {response.status_code}")
+
+    # Set refresh rate (in seconds)
+    time.sleep(60)
+    
