@@ -20,7 +20,7 @@ headers = {"Authorization": f"Bearer {app_id}:{app_key}"}
 # function to remove duplicates
 def remove_duplicates(data):
     """
-    Removes duplicate entries from the JSON data based on `lineName` 
+    Removes duplicate entries from the JSON data based on `lineName`
     and `timeToStation`.
     This ensures that duplicate services are not shown seperately
 
@@ -54,8 +54,7 @@ def display_arrivals_board(data):
         # Convert time to minutes (optional)
         minutes = int(time_to_station / 60)
 
-        print("{:<20} {:<15} {:<10}".format(\
-            line_name, destination_name, minutes))
+        print("{:<20} {:<15} {:<10}".format(line_name, destination_name, minutes))
     print("-" * 100)
 
 
@@ -91,14 +90,17 @@ def sort_by_time(data):
     """
     return sorted(data, key=lambda x: x["timeToStation"])
 
-#function to clear the screen
+
+# function to clear the screen
 def cls():
-    os.system('cls' if os.name=='nt' else 'clear')
+    os.system("cls" if os.name == "nt" else "clear")
+
+
 # main loop begins
 while True:
     # Make API request
     response = requests.get(url, headers=headers)
-    #clear the screen
+    # clear the screen
     cls()
     # Check for successful response and parse
     if response.status_code == 200:
@@ -112,4 +114,3 @@ while True:
 
     # Set refresh rate (in seconds)
     time.sleep(60)
-    
