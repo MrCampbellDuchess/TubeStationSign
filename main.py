@@ -44,17 +44,17 @@ def remove_duplicates(data):
 def display_arrivals_board(data):
     print("{} Arrivals Board:".format(StationName))
     print("-" * 100)
-    print("{:<20} {:<15} {:>20}".format("Line", "Destination", "Time"))
+    print("{:<20} {:<15} {:>10}".format("Line", "Destination", "Time"))
     print("-" * 100)
     for arrival in data:
-        line_name = arrival["lineName"]
-        destination_name = arrival["destinationName"]
-        time_to_station = arrival["timeToStation"]
+        line_name = arrival.get("lineName", "Unknown")
+        destination_name = arrival.get("destinationName", "Unknown")
+        time_to_station = arrival.get("timeToStation", 0)
 
         # Convert time to minutes (optional)
         minutes = int(time_to_station / 60)
 
-        print("{:<20} {:<15} {:<10}".format(line_name, destination_name, minutes))
+        print("{:<20} {:<15} {:>10}".format(line_name, destination_name, minutes))
     print("-" * 100)
 
 
@@ -71,7 +71,7 @@ def strip_destination_name(data):
         list: List of dictionaries with modified `destinationName` fields.
     """
     for item in data:
-        destination_name = item["destinationName"]
+        destination_name = item.get("destinationName", "")
         if destination_name.endswith(" Underground Station"):
             item["destinationName"] = destination_name[:-19]
     return data
