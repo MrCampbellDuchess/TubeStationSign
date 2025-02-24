@@ -105,7 +105,7 @@ class TubeStationApp(QWidget):
 
         layout = QVBoxLayout()
 
-        self.arrivals_label = QLabel('Gloucester Road:')
+        self.arrivals_label = QLabel(StationName)
         layout.addWidget(self.arrivals_label)
 
         self.grid_layout = QGridLayout()
@@ -115,17 +115,32 @@ class TubeStationApp(QWidget):
         self.refresh_button.clicked.connect(self.refresh_data)
         layout.addWidget(self.refresh_button)
 
+        self.countdown_label = QLabel("Next refresh in: 60 seconds")
+        layout.addWidget(self.countdown_label)
+
         self.setLayout(layout)
         self.refresh_data()
 
         # Set up the timer to auto-refresh every 60 seconds
-        self.timer = QTimer(self)
-        self.timer.timeout.connect(self.refresh_data)
-        self.timer.start(60000)  # 60 seconds
+        self.refresh_timer = QTimer(self)
+        self.refresh_timer.timeout.connect(self.refresh_data)
+        self.refresh_timer.start(60000)  # 60 seconds
+
+        self.countdown = 60
+        self.countdown_timer = QTimer(self)
+        self.countdown_timer.timeout.connect(self.update_countdown)
+        self.countdown_timer.start(1000)  # 1 second
 
     def refresh_data(self):
+        self.countdown = 60
         arrival_data = fetch_arrival_data()
         self.display_arrivals(arrival_data)
+
+    def update_countdown(self):
+        self.countdown -= 1
+        self.countdown_label.setText(f"Next refresh in: {self.countdown} seconds")
+        if self.countdown == 0:
+            self.refresh_data()
 
     def display_arrivals(self, data):
         # Clear the grid layout
