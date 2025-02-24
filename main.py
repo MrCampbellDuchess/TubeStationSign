@@ -6,7 +6,13 @@ import os
 import sys
 from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QLabel, QGridLayout, QPushButton
 from PyQt5.QtCore import QTimer
+import logging
 
+# Set up logging
+logging.basicConfig(
+    filename='error.log', level=logging.ERROR,
+    format='%(asctime)s:%(levelname)s:%(message)s'
+)
 
 # Define API endpoint and station code
 station = config.stationID
@@ -17,17 +23,15 @@ app_id = config.app_id
 # Replace with your App Key
 app_key = config.app_key
 
-
 # Set headers with your App ID and App Key
 headers = {"Authorization": f"Bearer {app_id}:{app_key}"}
 
 
-# function to remove duplicates
 def remove_duplicates(data):
     """
     Removes duplicate entries from the JSON data based on `lineName`
     and `timeToStation`.
-    This ensures that duplicate services are not shown seperately
+    This ensures that duplicate services are not shown separately.
 
     Args:
         data (list): List of dictionaries containing arrival information.
@@ -45,7 +49,6 @@ def remove_duplicates(data):
     return unique_data
 
 
-# function to strip the words "Underground Station" from the destination
 def strip_destination_name(data):
     """
     Strips the string "Underground Station" from the `destinationName` field.
@@ -64,7 +67,6 @@ def strip_destination_name(data):
     return data
 
 
-# function to sort the data by timeToStation
 def sort_by_time(data):
     """
     Sorts the data by `timeToStation` in ascending order.
@@ -79,18 +81,22 @@ def sort_by_time(data):
 
 
 def fetch_arrival_data():
-    response = requests.get(url, headers=headers)
-    if response.status_code == 200:
-        data = json.loads(response.text)
-        data = sort_by_time(data)
-        data = strip_destination_name(data)
-        data = remove_duplicates(data)
-        return data
-    else:
-        print(f"Error: {response.status_code}")
+    try:
+        response = requests.get(url, headers=headers)
+        if response.status_code == 200:
+            data = json.loads(response.text)
+            data = sort_by_time(data)
+            data = strip_destination_name(data)
+            data = remove_duplicates(data)
+            return data
+        else:
+            logging.error(f"Error: {response.status_code}")
+            return []
+    except Exception as e:
+        logging.error(f"Exception occurred: {e}")
         return []
-    
-# PyQt5 application
+
+
 class TubeStationApp(QWidget):
     def __init__(self):
         super().__init__()
@@ -100,7 +106,7 @@ class TubeStationApp(QWidget):
         self.setWindowTitle('Tube Station Information')
         self.setGeometry(100, 100, 300, 300)
 
-        #set the background color to black and the text to yellow
+        # set the background color to black and the text to yellow
         self.setStyleSheet("background-color: black; color: yellow;")
 
         layout = QVBoxLayout()
@@ -115,32 +121,17 @@ class TubeStationApp(QWidget):
         self.refresh_button.clicked.connect(self.refresh_data)
         layout.addWidget(self.refresh_button)
 
-        self.countdown_label = QLabel("Next refresh in: 60 seconds")
-        layout.addWidget(self.countdown_label)
-
         self.setLayout(layout)
         self.refresh_data()
 
         # Set up the timer to auto-refresh every 60 seconds
-        self.refresh_timer = QTimer(self)
-        self.refresh_timer.timeout.connect(self.refresh_data)
-        self.refresh_timer.start(60000)  # 60 seconds
-
-        self.countdown = 60
-        self.countdown_timer = QTimer(self)
-        self.countdown_timer.timeout.connect(self.update_countdown)
-        self.countdown_timer.start(1000)  # 1 second
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.refresh_data)
+        self.timer.start(60000)  # 60 seconds
 
     def refresh_data(self):
-        self.countdown = 60
         arrival_data = fetch_arrival_data()
         self.display_arrivals(arrival_data)
-
-    def update_countdown(self):
-        self.countdown -= 1
-        self.countdown_label.setText(f"Next refresh in: {self.countdown} seconds")
-        if self.countdown == 0:
-            self.refresh_data()
 
     def display_arrivals(self, data):
         # Clear the grid layout
@@ -165,8 +156,12 @@ class TubeStationApp(QWidget):
             self.grid_layout.addWidget(QLabel(destination_name), row, 1)
             self.grid_layout.addWidget(QLabel(str(minutes)), row, 2)
 
+
 if __name__ == '__main__':
-    app = QApplication(sys.argv)
-    ex = TubeStationApp()
-    ex.show()
-    sys.exit(app.exec_())
+    try:
+        app = QApplication(sys.argv)
+        ex = TubeStationApp()
+        ex.show()
+        sys.exit(app.exec_())
+    except Exception as e:
+        logging.error(f"Exception occurred: {e}")
