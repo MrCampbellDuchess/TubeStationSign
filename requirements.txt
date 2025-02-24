@@ -2,3 +2,4 @@ requests
 time
 json
 os
+pyqt5
