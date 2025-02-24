@@ -13,6 +13,7 @@ app_id = config.app_id
 # Replace with your App Key
 app_key = config.app_key
 
+
 # Set headers with your App ID and App Key
 headers = {"Authorization": f"Bearer {app_id}:{app_key}"}
 
@@ -48,7 +49,7 @@ def display_arrivals_board(data):
     print("-" * 100)
     for arrival in data:
         line_name = arrival.get("lineName", "Unknown")
-        destination_name = arrival.get("destinationName", "Unknown")
+        destination_name = arrival.get("destinationName", "Check Front of Train")
         time_to_station = arrival.get("timeToStation", 0)
 
         # Convert time to minutes (optional)
@@ -109,6 +110,7 @@ while True:
         data = strip_destination_name(data)
         data = remove_duplicates(data)
         display_arrivals_board(data)
+
     else:
         print(f"Error: {response.status_code}")
 
